@@ -56,9 +56,12 @@ def main():
     if comparison["deltas"]:
         print(f"  deltas: {comparison['deltas']}")
 
-    # Always save the challenger artifacts
+    # Always save the challenger artifacts, plus the test split so downstream
+    # reporting (business_report.py) can reuse the exact same held-out data
+    # instead of silently re-splitting and drifting out of sync.
     joblib.dump(best_model, config.CHALLENGER_MODEL_PATH)
     save_metrics(challenger_metrics, config.CHALLENGER_METRICS_PATH)
+    joblib.dump({"X_test": X_test, "y_test": y_test}, f"{config.MODEL_DIR}/test_split.joblib")
 
     if comparison["promote"]:
         joblib.dump(best_model, config.CHAMPION_MODEL_PATH)
